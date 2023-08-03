@@ -307,6 +307,14 @@ class Box:
 
     # Forms
 
+    def is_form(self):
+        """Return whether this box is a form."""
+        # https://html.spec.whatwg.org/multipage/forms.html#the-form-element
+        if self.style['appearance'] == 'auto' and self.element is not None:
+            if self.element.tag == 'form':
+                return not isinstance(self, (LineBox, TextBox))
+        return False
+
     def is_input(self):
         """Return whether this box is a form input."""
         # https://html.spec.whatwg.org/multipage/forms.html#category-submit
