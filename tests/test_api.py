@@ -480,9 +480,9 @@ def test_partial_pdf_custom_metadata():
 
 
 @pytest.mark.parametrize('html, field', (
-    (b'<input>', b'/Tx'),
-    (b'<input type="checkbox">', b'/Btn'),
-    (b'<textarea></textarea>', b'/Tx'),
+    (b'<form><input></form>', b'/Tx'),
+    (b'<form><input type="checkbox"></form>', b'/Btn'),
+    (b'<form><textarea></textarea></form>', b'/Tx'),
 ))
 def test_pdf_inputs(html, field):
     stdout = _run('--pdf-forms --uncompressed-pdf - -', html)
@@ -498,7 +498,7 @@ def test_pdf_inputs(html, field):
     ('', True, False),
 ))
 def test_appearance(css, with_forms, without_forms):
-    html = f'<input style="{css}">'.encode()
+    html = f'<form><input style="{css}"></form>'.encode()
     assert with_forms is (
         b'AcroForm' in _run('--pdf-forms --uncompressed-pdf - -', html))
     assert without_forms is (

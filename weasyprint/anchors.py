@@ -27,10 +27,10 @@ def rectangle_aabb(matrix, pos_x, pos_y, width, height):
     return box_x1, box_y1, box_x2, box_y2
 
 
-def gather_anchors(box, anchors, links, bookmarks, inputs, parent_matrix=None):
+def gather_anchors(box, anchors, links, bookmarks, forms, parent_matrix=None, current_form_key=None):
     """Gather anchors and other data related to specific positions in PDF.
 
-    Currently finds anchors, links, bookmarks and inputs.
+    Currently finds anchors, links, bookmarks and forms(w/ inputs).
 
     """
     # Get box transformation matrix.
@@ -87,7 +87,16 @@ def gather_anchors(box, anchors, links, bookmarks, inputs, parent_matrix=None):
     has_link = link and not isinstance(box, (boxes.TextBox, boxes.LineBox))
     # In case of duplicate IDs, only the first is an anchor.
     has_anchor = anchor_name and anchor_name not in anchors
+    is_form = box.is_form()
     is_input = box.is_input()
+
+    form_key = None
+    if is_form:
+        form_key = box.element.attrib.get('name', 'unknown')
+        # init key with an empty
+        forms[form_key] = []
+    else:
+        form_key = current_form_key
 
     if has_bookmark or has_link or has_anchor or is_input:
         if is_input:
@@ -106,7 +115,11 @@ def gather_anchors(box, anchors, links, bookmarks, inputs, parent_matrix=None):
                 link_type = 'attachment'
             links.append((link_type, target, rectangle, box))
         if is_input:
+            # TODO ... change to key index and add to list
+            # find the pythonic way to do this
+            inputs = forms[form_key]
             inputs.append((box.element, box.style, rectangle))
+            forms[form_key] = inputs
         if matrix and (has_bookmark or has_anchor):
             pos_x, pos_y = matrix.transform_point(pos_x, pos_y)
         if has_bookmark:
@@ -116,7 +129,7 @@ def gather_anchors(box, anchors, links, bookmarks, inputs, parent_matrix=None):
             anchors[anchor_name] = pos_x, pos_y
 
     for child in box.all_children():
-        gather_anchors(child, anchors, links, bookmarks, inputs, matrix)
+        gather_anchors(child, anchors, links, bookmarks, forms, matrix, form_key)
 
 
 def make_page_bookmark_tree(page, skipped_levels, last_by_depth,

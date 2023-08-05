@@ -73,8 +73,12 @@ class Page:
         #: :obj:`dict` of HTML tag attributes and values.
         self.inputs = []
 
+        #: The :obj:`dict` mapping each form name to inputs as a :obj:`list` of
+        #: ``(element, attributes, rectangle)`` :obj:`tuples<tuple>`.
+        self.forms = {}
+
         gather_anchors(
-            page_box, self.anchors, self.links, self.bookmarks, self.inputs)
+            page_box, self.anchors, self.links, self.bookmarks, self.forms)
         self._page_box = page_box
 
     def paint(self, stream, left_x=0, top_y=0, scale=1, clip=False):

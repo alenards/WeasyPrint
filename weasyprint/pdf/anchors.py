@@ -89,6 +89,11 @@ def add_outlines(pdf, bookmarks, parent=None):
 
     return outlines, count
 
+def add_forms(forms, matrix, pdf, page, resources, stream, font_map,
+               compress):
+    for key in forms:
+        add_inputs(forms[key], matrix, pdf, page, resources, stream,
+                   font_map, compress)
 
 def add_inputs(inputs, matrix, pdf, page, resources, stream, font_map,
                compress):
